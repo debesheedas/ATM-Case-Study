@@ -26,6 +26,7 @@ class ATM_User implements userInterface
                 if(atm.searchAccountAndPIN(acc, pin)!=null)
                 {
                     c = atm.searchAccountAndPIN(acc, pin);
+                    c.setLoginStatus(true);
                     return true;
                 }
                 else
@@ -47,9 +48,13 @@ class ATM_User implements userInterface
         char choice = 'y';
         while(choice=='y')
         {
+            //System.out.println(c);
+            //if(c!=null)
+            //System.out.println(c.getLoginStatus());
             System.out.println("*");
             if((c!=null && c.getLoginStatus()==true) || (this.authentication()==true))
             {
+                //System.out.println(c);
                 try
                 {
                     System.out.println("Press 1: View my Balance\nPress 2: Withdraw Amount\nPress 3: Deposit Amount\nPress 4: Exit/Logout");
@@ -104,15 +109,13 @@ class ATM_User implements userInterface
                 catch(Exception e)
                 {
                     System.out.println("Please enter a valid number");
-                }
-                
-
-            }
-            
+                } 
+            } 
         }
-        if(c!=null)
+        if(c!=null)//for security purposes, logout the user by default before exiting the process
         {
             atm.searchByAccNo(c.getAccNo()).setLoginStatus(false);
+            System.out.println("You have been logged out successfully.");
         }
     }
 
