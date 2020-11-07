@@ -2,18 +2,21 @@ public class Test
 {
     public static void main(String args[])
     {
-        ATM atm = new ATM();
+        ATM atm1 = new ATM("State Bank of India", "SBIN", 50000, 30000);
+        atm1.getDatabase().loadDatabase();
+
+
+        ATM atm2 = new ATM("ICICI Bank", "ICIC", 60000, 20000);
+        atm2.getDatabase().loadDatabase();
         //ATM_User user = new ATM_User(atm);
         //user.run();
-        atm.getDatabase().loadDatabase();
+        //atm.getDatabase().loadDatabase();
         //atm.addDefaultData();
-        for(Customer c: atm.getAllCustomers())
-        {
-            //System.out.println(c.getName()+" "+c.getAccNo()+" "+c.getPIN()+" "+c.getBalance()+" "+c.getLoginStatus());
-        }
-        ATM_User u = new ATM_User(atm);
+        
+        ATM_User u = new ATM_User(atm1);
         u.main_menu();
-        atm.getDatabase().updateDatabase();
+        atm1.getDatabase().updateDatabase();
+        atm2.getDatabase().updateDatabase();
     }
     
 }

@@ -10,9 +10,10 @@ public class Database
     private String url = "jdbc:sqlite:db/"+db_name; // url of the database
     private ATM atm;
 
-    Database(ATM atm){
-      this.atm = atm;;
-      db_name = "ATM.db";
+    Database(ATM atm)
+    {
+      this.atm = atm;
+      db_name = atm.getCode()+"ATM.db";
       url = "jdbc:sqlite:db/"+db_name;
    }
 
@@ -39,9 +40,10 @@ public class Database
            Statement s = c.createStatement();
         ){
 
-           s.executeUpdate("create table if not exists Customers (Name text not null , AccNo int not null unique, PIN int not null , balance real not null , loginStatus text not null)");
-           s.executeUpdate("create table if not exists cashBalance(balance real not null)");
-
+           s.executeUpdate("create table if not exists Customers (Name text not null , AccNo int not null unique, PIN int not null , balance real not null , loginStatus text not null, IFSC text not null, PhoneNo text not null, BlockTime int not null)");
+           s.executeUpdate("create table if not exists BankDetails(Name text not null, Code text not null, balance real not null, refresh real not null)");
+           s.executeUpdate("create table if not exists Transactions (RefID int not null unique, AccNo int not null, type text not null, value real not null, balance real not null)");
+          
 
         }catch(Exception e){
            System.out.println(e.getClass().getName() +" : "+e.getMessage());
@@ -63,8 +65,10 @@ public class Database
                   int pin = rs.getInt("PIN");
                   double bal = rs.getDouble("balance");
                   String loginstatus = rs.getString("loginStatus");
-
-                  Customer e = new Customer(name, no, pin, bal, loginstatus.equals("true"));
+                    String ifsc = rs.getString("IFSC");
+                    String phone = rs.getString("PhoneNo");
+                    int time = rs.getInt("BlockTime");
+                  Customer e = new Customer(name, no, pin, bal, loginstatus.equals("true"), ifsc, phone, time);
                   customers.add(e);
 
                }
@@ -78,30 +82,69 @@ public class Database
          }
      }
 
-    private double getCashBalance(){
+     private ArrayList<Transaction> fillTransactions(ArrayList<Transaction> transactions){
+        transactions.clear();
+        try(Connection c = this.connect();
+            Statement s = c.createStatement();)
+            {
+
+            ResultSet rs = s.executeQuery("select * from Transactions");
+            while(rs.next())
+            {
+               int id = rs.getInt("RefID");
+               if(id!= 0)
+               {
+                   int no = rs.getInt("AccNo");
+                   String t = rs.getString("type");
+                   double v = rs.getDouble("value");
+                   double b = rs.getDouble("balance");
+                  
+                  Transaction e = new Transaction(id, no, t, v, b);
+                  transactions.add(e);
+
+               }
+               
+            }
+            return transactions; 
+         }
+         catch(Exception e){
+            System.out.println(e.getClass().getName() +" : "+e.getMessage());
+            return null;
+         }
+     }
+
+    private Vector getBankDetails(){
    
         try(Connection c = this.connect();
             PreparedStatement ps = c.prepareStatement("select * from cashBalance ");)
             {
             ResultSet rs = ps.executeQuery();
-  
+            Vector v = new Vector<>();
             while(rs.next())
             {
+                String name = rs.getString("Name");
+                String code = rs.getString("Code");
                 double balance = rs.getDouble("balance");
-                return balance;
+                double refresh = rs.getDouble("refresh");
+                
+                v.add(name);
+                v.add(code);
+                v.add(balance);
+                v.add(refresh);
+                //return v;
             }
-            return 0;
+            return v;
   
         }catch(Exception e)
         {
             System.out.println(e.getClass().getName() +" : "+e.getMessage());
-            return 0;
+            return null;
         }
      }
     //loadDatabase();
     void loadDatabase(){
-
-        File f = new File("db/ATM.db");  
+        String str = "db/"+db_name;
+        File f = new File(str);  
 
         if(!(f.isFile()))// checking if db file exists
         {    
@@ -114,42 +157,68 @@ public class Database
         {
             System.out.println("Loading into Instance variables");
             atm.setCustomers(fillCustomers(new ArrayList<Customer>()));
-            atm.setCashBalance(getCashBalance());
+            atm.setTransactions(fillTransactions(new ArrayList<Transaction>()));
+            atm.setDetails(getBankDetails());
         }
        
     
     }
 
-    private void addCashBalance(double bal)
+    private void addBankDetails(String name, String code, double bal, double r)
     {
         try(Connection c = this.connect();
-           PreparedStatement ps = c.prepareStatement("delete from cashBalance");
+           PreparedStatement ps = c.prepareStatement("delete from BankDetails");
         ){
            ps.executeUpdate();           
         }catch(Exception e){
            System.out.println(e.getClass().getName() +" : "+e.getMessage());
         }
         try(Connection c = this.connect();
-           PreparedStatement ps = c.prepareStatement("insert into cashBalance values (?)");
-        ){
-           ps.setDouble(1, bal);
-           ps.executeUpdate();
+           PreparedStatement ps = c.prepareStatement("insert into BankDetails values (?,?,?,?)");
+        )
+        {
+            ps.setString(1, name);
+            ps.setString(2, code);
+            ps.setDouble(3, bal);
+            ps.setDouble(4, r);
+            ps.executeUpdate();
            
         }catch(Exception e){
            System.out.println(e.getClass().getName() +" : "+e.getMessage());
         }
     }
-    private void addCustomer(String name , int no , int pin, double bal , String loginStatus )
+    private void addCustomer(String name , int no , int pin, double bal , String loginStatus, String ifsc, String phone, int t)
     {
         try(Connection c = this.connect();
-            PreparedStatement ps = c.prepareStatement("insert into Customers values (?,?,?,?,?)");
+            PreparedStatement ps = c.prepareStatement("insert into Customers values (?,?,?,?,?,?,?,?)");
          ){
             ps.setString(1, name);
             ps.setInt(2, no);
             ps.setInt(3, pin);
             ps.setDouble(4, bal);
             ps.setString(5 , loginStatus);
+            ps.setString(6 , ifsc);
+            ps.setString(7 , phone);
+            ps.setInt(8, t);
+            ps.executeUpdate();
+            
+         }catch(Exception e){
+            System.out.println(e.getClass().getName() +" : "+e.getMessage());
+         }
   
+    }
+  
+    private void addTransaction(int id, int no , String t, double v, double b)
+    {
+        try(Connection c = this.connect();
+            PreparedStatement ps = c.prepareStatement("insert into Transactions values (?,?,?,?,?)");
+         ){
+            ps.setInt(1, id);
+            ps.setInt(2, no);
+            ps.setString(3, t);
+            ps.setDouble(4, v);
+            ps.setDouble(5 , b);
+            
             ps.executeUpdate();
             
          }catch(Exception e){
@@ -162,7 +231,8 @@ public class Database
     void updateDatabase()
     {
         System.out.println("Updating Database");
-        File f = new File("db/ATM.db");  
+        String str = "db/"+db_name;
+        File f = new File(str);  
 
         if(!(f.isFile()))// checking if db file exists
         {    
@@ -187,11 +257,10 @@ public class Database
         try(Connection c = this.connect();	
             Statement s = c.createStatement();	        
             )
-            {	
-                //s.executeUpdate("drop table if exists 'employees' ");	         
-                //s.executeUpdate("drop table if exists 'floors' ");
+            {
                 s.executeUpdate("delete from 'Customers' ");	         
-                s.executeUpdate("delete from 'cashBalance' ");	            
+                s.executeUpdate("delete from 'BankDetails' ");	
+                s.executeUpdate("delete from 'Transactions' ");	            
         	
             }
             catch(Exception e){	
@@ -200,10 +269,14 @@ public class Database
             ArrayList<Customer> customers = atm.getAllCustomers(); 
             for(Customer e: customers)
             {
-                addCustomer(e.getName(), e.getAccNo(), e.getPIN(), e.getBalance() ,(String)((e.getLoginStatus()) ? "true" : "false" ));
+                addCustomer(e.getName(), e.getAccNo(), e.getPIN(), e.getBalance() ,(String)((e.getLoginStatus()) ? "true" : "false"), e.getIFSC(), e.getPhoneNo(), e.getTime());
             }
-            addCashBalance(atm.getCashBalance());
-        
+            addBankDetails(atm.getName(), atm.getCode(), atm.getCashBalance(), atm.getRefreshAmount());
+            ArrayList<Transaction> transactions = atm.getAllTransactions(); 
+            for(Transaction e: transactions)
+            {
+                addTransaction(e.getRefID(), e.getAccNo(), e.getType(), e.getValue(), e.getBalance());
+            }
     }
     /*
     public static void main(String args[])

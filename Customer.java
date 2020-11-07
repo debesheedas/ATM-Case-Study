@@ -6,22 +6,31 @@ public class Customer
     private int PIN;
     private double balance;
     private boolean loginStatus;
+    private String IFSC;
+    private String PhoneNo;
+    private int time;
 
-    Customer(String n, int acc, int pin, double b)
+    Customer(String n, int acc, int pin, double b, String ifsc, String ph, int t)
     {
         name = n;
         AccNo = acc;
         PIN = pin;
         balance = b;
         loginStatus = false;
+        IFSC = ifsc;
+        PhoneNo = ph;
+        time = t;
     }
-    Customer(String n, int acc, int pin, double b, boolean status)
+    Customer(String n, int acc, int pin, double b, boolean status, String ifsc, String ph, int t)
     {
         name = n;
         AccNo = acc;
         PIN = pin;
         balance = b;
         loginStatus = status;
+        IFSC = ifsc;
+        PhoneNo = ph;
+        time = t;
     }
 
     String getName()
@@ -64,6 +73,29 @@ public class Customer
     {
         loginStatus = status;
     }
-
+    String getIFSC()
+    {
+        return IFSC;
+    }
+    void setIFSC(String ifsc)
+    {
+        IFSC = ifsc;
+    }
+    String getPhoneNo()
+    {
+        return PhoneNo;
+    }
+    void setPhoneNo(String ph)
+    {
+        PhoneNo = ph;
+    }
+    int getTime()
+    {
+        return time;
+    }
+    void setTime(int t)
+    {
+        time = t;
+    }
     
 }
