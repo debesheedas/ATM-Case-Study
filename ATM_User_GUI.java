@@ -1,5 +1,3 @@
-
-
 class ATM_User_GUI implements userInterface
 {
     ATM atm1, atm2;
@@ -18,7 +16,7 @@ class ATM_User_GUI implements userInterface
     }
     public void main_menu(Customer c)
     {
-
+        //not required - is dealt with in MainMenuGUI class
     }
 }
 

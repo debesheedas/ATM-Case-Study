@@ -115,23 +115,22 @@ public class Database
          }
      }
 
-    private Vector<Object> getBankDetails(){
-   
+     
+
+    private Vector<Object> getBankDetails()
+    {
+        Vector<Object> v = new Vector<Object>();
         try(Connection c = this.connect();
-            PreparedStatement ps = c.prepareStatement("select * from BankDetails ");)
+            Statement s = c.createStatement();)
             {
-            ResultSet rs = ps.executeQuery();
-            Vector<Object> v = new Vector<Object>();
-            v.add("3");
-            System.out.println(v.get(0));
-            System.out.println("**");
-            System.out.println("**");
-            System.out.println("rs contains"+rs);
+            ResultSet rs = s.executeQuery("select * from BankDetails");
+            
             while(rs.next())
             {
-                System.out.println("&");
                 String name = rs.getString("Name");
+                //System.out.println(name);
                 String code = rs.getString("Code");
+                //System.out.println(code);
                 double balance = rs.getDouble("balance");
                 double refresh = rs.getDouble("refresh");
                 System.out.println("*");
@@ -139,12 +138,15 @@ public class Database
                 v.add(code);
                 v.add(balance);
                 v.add(refresh);
-                //return v;
-            }
+            
+           
+        }
+            
             return v;
   
         }catch(Exception e)
         {
+            System.out.println("Exception occured");
             System.out.println(e.getClass().getName() +" : "+e.getMessage());
             return null;
         }
@@ -300,4 +302,5 @@ public class Database
 }
 
     
+//$2a$10$i/.DpVd1/ouV37OH6X68MOy7Pc3M6fiXelGZrGGWP7kSv.YX/btj6
 

@@ -29,7 +29,7 @@ public class Customer
     {
         name = n;
         AccNo = acc;
-        PIN = BCrypt.hashpw(pin, BCrypt.gensalt());
+        PIN = pin;
         balance = b;
         loginStatus = status;
         IFSC = ifsc;

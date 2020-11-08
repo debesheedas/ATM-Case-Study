@@ -57,14 +57,19 @@ public class ATM
     }
     void setDetails(Vector<Object> v)
     {
-        if(v==null)
+        //System.out.println(v.size());
+        if(v==null || v.size()<4)
         {
-            System.out.println("v is null");
+            System.out.println("v is not ready");
         }
-        name = v.get(0).toString();
+        else
+        {
+            name = v.get(0).toString();
         code = v.get(1).toString();
         cashBalance = Double.parseDouble(v.get(2).toString());
         refreshAmount = Double.parseDouble(v.get(3).toString());
+        }
+        
     }
     Customer searchByAccNo(int no)
     {
@@ -163,12 +168,19 @@ public class ATM
         }
         return a;
     }
-    void addDefaultData()
+    /*void addDefaultData()//use this for initialising data of SBI Bank
     {
-        //cashBalance = 50000;
         this.addCustomer(new Customer("Ada Lovelace", 12345, "23232", 20100, code+"0005943", "1234554321", 1));
-        this.addCustomer(new Customer("Frances Allen", 54321, "23232", 30100, code+"1234567", "0987654321", 2));
-        this.addCustomer(new Customer("Ada Lovelace", 20001, "23232", 4100, code+"1234567", "0987654321", 2));
-        this.addCustomer(new Customer("Ada Lovelace", 12001, "23232", 5000, code+"1234567", "0987654321", 2));
+        this.addCustomer(new Customer("Frances Allen", 54321, "23232", 30100, code+"1234567", "0987655555", 2));
+        this.addCustomer(new Customer("Frances Spence", 20001, "23232", 4100, code+"1234567", "0987654320", 2));
+        this.addCustomer(new Customer("Judy Clapp", 12001, "23232", 5000, code+"1234567", "0987654323", 2));
+    }*/
+    
+    void addDefaultData()//use this for initialising data of ICICI Bank
+    {
+        this.addCustomer(new Customer("Grace Hopper", 11221, "32323", 20100, code+"0005943", "1234554320", 1));
+        this.addCustomer(new Customer("Betty Jean", 50400, "32323", 30100, code+"1234567", "4040654311", 2));
+        this.addCustomer(new Customer("Radia Pearlman", 23331, "32323", 4100, code+"1234567", "0987654333", 2));
+        this.addCustomer(new Customer("Karen Jones", 67890, "32323", 5000, code+"1234567", "0987654322", 2));
     }
 }

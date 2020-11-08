@@ -2,10 +2,15 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.awt.Button;
+import java.awt.Dimension;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 public class AuthenticateGUI implements ActionListener
 {
     private ATM atm1, atm2;
-    private Customer c;
+    private static Customer c;
     private static int n;
     private static int temp;
     private static JFrame frame;
@@ -37,13 +42,13 @@ public class AuthenticateGUI implements ActionListener
         frame = new JFrame();
 		panel = new JPanel();
 		
-		frame.setSize(1440,1024);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
+		frame.setSize(1440,800);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);	
 		frame.add(panel);
 		frame.setTitle("Welcome - Authenticate");
         panel.setLayout(null);
         
-        welcome = new JLabel("Welcome to ATM");//add name of bank here
+        welcome = new JLabel("Welcome to ATM of"+atm1.getName());//add name of bank here
 		welcome.setBounds(540, 20, 400, 30);
 		panel.add(welcome);
 		
@@ -87,10 +92,30 @@ public class AuthenticateGUI implements ActionListener
         panel.add(authenticate);
 
         success = new JLabel("");
-		success.setBounds(60, 400, 800, 25);
+		success.setBounds(60, 460, 800, 25);
 		panel.add(success);
         frame.setVisible(true);
     
+    
+    frame.addWindowListener(new java.awt.event.WindowAdapter() {
+        @Override
+        public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+            if (JOptionPane.showConfirmDialog(frame, 
+                "Are you sure you want to close this window?", "Close Window?", 
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
+                {
+                    if(c!=null)
+                    {
+                        c.setLoginStatus(false);
+                    }
+                    //log out any logged in customer for security purposes
+                    atm1.getDatabase().updateDatabase();
+                    atm2.getDatabase().updateDatabase(); 
+                System.exit(0);
+            }
+        }
+    });
     }
 
     @Override
@@ -153,22 +178,28 @@ public class AuthenticateGUI implements ActionListener
             }
             else if(e.getSource().equals(authenticate))
             {
-                if(tempOTP==(Integer.parseInt(authenticate.getText())))
+                //System.out.println("Authenticate clicked");
+                if(Integer.toString(tempOTP).equals(new String(OTP.getPassword())))
                 {
                     System.out.println("**");
                     success.setText("Login successful");
                     if(c!=null)
-                    c.setLoginStatus(true);
+                    {
+                        c.setLoginStatus(true);
+                        System.out.println("Login successful");
+                        System.out.println(c.getLoginStatus());
+                    }
                     atm1.getDatabase().updateDatabase();
                     atm2.getDatabase().updateDatabase();
                     frame.setVisible(false);
                     frame.dispose();
                     MainMenuGUI m = new MainMenuGUI(atm1, atm2, c);
+                    m.run();
                     //open up main menu
                 }
                 else
                 {
-                    success.setText("Incorrect OTP. Click Resend OTP");
+                    success.setText("Incorrect OTP. Try again or Click Resend OTP");
                 }
             //check if entered otp is valid
             //if not- show resend otp message
@@ -179,6 +210,7 @@ public class AuthenticateGUI implements ActionListener
         }
         catch(Exception er)
         {
+            System.out.println("Exception occurred: "+er);
             System.out.println(er.getStackTrace());
         }
         
@@ -195,14 +227,22 @@ public class AuthenticateGUI implements ActionListener
     }
     boolean checkPIN(Customer e, String s)
     {
+        //System.out.println(e.getAccNo());
+        //System.out.println(e.getPIN());
+        //System.out.println(s);
         if (BCrypt.checkpw(s, e.getPIN()))
         {
+            //System.out.println("true");
             return true;
         }
         return false;
     }
     boolean checkBlockStatus(Time t, Customer y)
     {
+        //System.out.println("Checking block status");
+        //System.out.println("End time"+ y.getEndTime().getTime());
+        Time now = new Time();
+        System.out.println("Current Time"+ now.getTime());
         if(t.isGreaterThan(y.getEndTime()))
         {
             y.setBlockStatus(true);
@@ -217,37 +257,9 @@ public class AuthenticateGUI implements ActionListener
         System.out.println("Your OTP is: "+i);
         System.out.println("*");
     }
-    /*
-    @Override
-	public void actionPerformed(ActionEvent e) {
-
-		//System.out.println("Button clicked");
-		username = password1.getText();
-		password = new String(password2.getPassword());
-        //System.out.println(username + " "+ password);
-        
-        if(username.equals("admin")&&password.equals("password"))
-		{
-			success.setText("Login Successful!");100
-			pl.getAdmin().setLoginStatus(true);
-			pl.getDatabase().updateDatabase();
-
-			//execute(true);
-        }
-        else if(pl.searchEmployeeByUsername(username, password))
-        {
-            success.setText("Login Successful!");
-			Employee emp = pl.returnEmployeeByUsername(username, password);//method present in ParkingLot class
-			
-			emp.setLoginStatus(true);//setter method of Employee class
-			pl.getDatabase().updateDatabase();
-            //search for employee and set login status as true
-        }
-		else
-		{
-			success.setText("Login Unsuccessful, please try again");
-		}	
-        */
-    
+   
+ 
+ 
 }
+
 
