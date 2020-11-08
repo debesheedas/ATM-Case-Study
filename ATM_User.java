@@ -1,10 +1,10 @@
 import java.util.*;
 interface userInterface
 {
-    boolean authentication();
-    void main_menu();
+    void authentication();
+    void main_menu(Customer c);
 }
-
+/*
 class ATM_User implements userInterface
 {
     ATM atm;
@@ -14,7 +14,7 @@ class ATM_User implements userInterface
         atm=a;
         //c=null;
     }
-    public boolean authentication()
+    public void authentication()
     {
         Scanner sc = new Scanner(System.in);
         try
@@ -27,22 +27,22 @@ class ATM_User implements userInterface
                 {
                     c = atm.searchAccountAndPIN(acc, pin);
                     c.setLoginStatus(true);
-                    return true;
+                    return c;
                 }
                 else
                 {
                     System.out.println("Authentication failed. Please enter correct Account Number and PIN and try again");
-                    return false;
+                    return null;
                 }
             }
             catch(Exception e)
             {
                 System.out.println("Please enter a valid number");
-                return false;
+                return null;
             }
             
     }
-    public void main_menu()
+    public void main_menu(Customer c)
     {
         Scanner sn = new Scanner(System.in);
         char choice = 'y';
@@ -52,7 +52,7 @@ class ATM_User implements userInterface
             //if(c!=null)
             //System.out.println(c.getLoginStatus());
             System.out.println("*");
-            if((c!=null && c.getLoginStatus()==true) || (this.authentication()==true))
+            if((c!=null && c.getLoginStatus()==true) || (this.authentication()!=null))
             {
                 //System.out.println(c);
                 try
@@ -121,3 +121,4 @@ class ATM_User implements userInterface
 
     
 }
+*/

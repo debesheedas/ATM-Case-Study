@@ -40,7 +40,7 @@ public class Database
            Statement s = c.createStatement();
         ){
 
-           s.executeUpdate("create table if not exists Customers (Name text not null , AccNo int not null unique, PIN int not null , balance real not null , loginStatus text not null, IFSC text not null, PhoneNo text not null, BlockTime int not null)");
+           s.executeUpdate("create table if not exists Customers (Name text not null , AccNo int not null unique, PIN text not null , balance real not null , loginStatus text not null, IFSC text not null, PhoneNo text not null, BlockTime int not null, blockStatus text not null, endTime text not null)");
            s.executeUpdate("create table if not exists BankDetails(Name text not null, Code text not null, balance real not null, refresh real not null)");
            s.executeUpdate("create table if not exists Transactions (RefID int not null unique, AccNo int not null, type text not null, value real not null, balance real not null)");
           
@@ -62,13 +62,15 @@ public class Database
                if(no != 0)
                {
                   String name = rs.getString("Name");
-                  int pin = rs.getInt("PIN");
+                  String pin = rs.getString("PIN");
                   double bal = rs.getDouble("balance");
-                  String loginstatus = rs.getString("loginStatus");
+                  boolean loginstatus = rs.getString("loginStatus").equals("true");
                     String ifsc = rs.getString("IFSC");
                     String phone = rs.getString("PhoneNo");
                     int time = rs.getInt("BlockTime");
-                  Customer e = new Customer(name, no, pin, bal, loginstatus.equals("true"), ifsc, phone, time);
+                    boolean bs = rs.getString("blockStatus").equals("true");
+                    Time end = new Time(rs.getString("endTime"));
+                  Customer e = new Customer(name, no, pin, bal, loginstatus, ifsc, phone, time, bs, end);
                   customers.add(e);
 
                }
@@ -113,20 +115,26 @@ public class Database
          }
      }
 
-    private Vector getBankDetails(){
+    private Vector<Object> getBankDetails(){
    
         try(Connection c = this.connect();
-            PreparedStatement ps = c.prepareStatement("select * from cashBalance ");)
+            PreparedStatement ps = c.prepareStatement("select * from BankDetails ");)
             {
             ResultSet rs = ps.executeQuery();
-            Vector v = new Vector<>();
+            Vector<Object> v = new Vector<Object>();
+            v.add("3");
+            System.out.println(v.get(0));
+            System.out.println("**");
+            System.out.println("**");
+            System.out.println("rs contains"+rs);
             while(rs.next())
             {
+                System.out.println("&");
                 String name = rs.getString("Name");
                 String code = rs.getString("Code");
                 double balance = rs.getDouble("balance");
                 double refresh = rs.getDouble("refresh");
-                
+                System.out.println("*");
                 v.add(name);
                 v.add(code);
                 v.add(balance);
@@ -187,19 +195,21 @@ public class Database
            System.out.println(e.getClass().getName() +" : "+e.getMessage());
         }
     }
-    private void addCustomer(String name , int no , int pin, double bal , String loginStatus, String ifsc, String phone, int t)
+    private void addCustomer(String name , int no , String pin, double bal , String loginStatus, String ifsc, String phone, int t, String blockStatus, String end)
     {
         try(Connection c = this.connect();
-            PreparedStatement ps = c.prepareStatement("insert into Customers values (?,?,?,?,?,?,?,?)");
+            PreparedStatement ps = c.prepareStatement("insert into Customers values (?,?,?,?,?,?,?,?,?,?)");
          ){
             ps.setString(1, name);
             ps.setInt(2, no);
-            ps.setInt(3, pin);
+            ps.setString(3, pin);
             ps.setDouble(4, bal);
             ps.setString(5 , loginStatus);
             ps.setString(6 , ifsc);
             ps.setString(7 , phone);
             ps.setInt(8, t);
+            ps.setString(9 , blockStatus);
+            ps.setString(10 , end);
             ps.executeUpdate();
             
          }catch(Exception e){
@@ -269,7 +279,7 @@ public class Database
             ArrayList<Customer> customers = atm.getAllCustomers(); 
             for(Customer e: customers)
             {
-                addCustomer(e.getName(), e.getAccNo(), e.getPIN(), e.getBalance() ,(String)((e.getLoginStatus()) ? "true" : "false"), e.getIFSC(), e.getPhoneNo(), e.getTime());
+                addCustomer(e.getName(), e.getAccNo(), e.getPIN(), e.getBalance() ,(String)((e.getLoginStatus()) ? "true" : "false"), e.getIFSC(), e.getPhoneNo(), e.getTime(), (String)((e.getBlockStatus()) ? "true" : "false"), e.getEndTime().getTime());
             }
             addBankDetails(atm.getName(), atm.getCode(), atm.getCashBalance(), atm.getRefreshAmount());
             ArrayList<Transaction> transactions = atm.getAllTransactions(); 

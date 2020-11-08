@@ -55,8 +55,12 @@ public class ATM
     {
         refreshAmount = r;
     }
-    void setDetails(Vector v)
+    void setDetails(Vector<Object> v)
     {
+        if(v==null)
+        {
+            System.out.println("v is null");
+        }
         name = v.get(0).toString();
         code = v.get(1).toString();
         cashBalance = Double.parseDouble(v.get(2).toString());
@@ -73,11 +77,11 @@ public class ATM
         }
         return null;
     }
-    Customer searchAccountAndPIN(int acc, int pin)
+    Customer searchAccountAndPIN(int acc, String pin)
     {
         for(Customer c: allCustomers)
         {
-            if(c.getAccNo()==acc && c.getPIN()==pin)
+            if(c.getAccNo()==acc && c.getPIN().equals(pin))
             {
                 return c;
             }
@@ -162,9 +166,9 @@ public class ATM
     void addDefaultData()
     {
         //cashBalance = 50000;
-        this.addCustomer(new Customer("Ada Lovelace", 12345, 23232, 20100, code+"0005943", "1234554321", 1));
-        this.addCustomer(new Customer("Frances Allen", 54321, 23232, 30100, code+"1234567", "0987654321", 2));
-        this.addCustomer(new Customer("Ada Lovelace", 20001, 23232, 4100, code+"1234567", "0987654321", 2));
-        this.addCustomer(new Customer("Ada Lovelace", 12001, 23232, 5000, code+"1234567", "0987654321", 2));
+        this.addCustomer(new Customer("Ada Lovelace", 12345, "23232", 20100, code+"0005943", "1234554321", 1));
+        this.addCustomer(new Customer("Frances Allen", 54321, "23232", 30100, code+"1234567", "0987654321", 2));
+        this.addCustomer(new Customer("Ada Lovelace", 20001, "23232", 4100, code+"1234567", "0987654321", 2));
+        this.addCustomer(new Customer("Ada Lovelace", 12001, "23232", 5000, code+"1234567", "0987654321", 2));
     }
 }

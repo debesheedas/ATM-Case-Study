@@ -13,10 +13,12 @@ public class Test
         //atm.getDatabase().loadDatabase();
         //atm.addDefaultData();
         
-        ATM_User u = new ATM_User(atm1);
-        u.main_menu();
-        atm1.getDatabase().updateDatabase();
-        atm2.getDatabase().updateDatabase();
+        //ATM_User u = new ATM_User(atm1);
+        //u.main_menu();
+        ATM_User_GUI u = new ATM_User_GUI(atm1, atm2);
+
+        //atm1.getDatabase().updateDatabase();
+        //atm2.getDatabase().updateDatabase();
     }
     
 }
